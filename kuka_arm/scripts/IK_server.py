@@ -28,24 +28,48 @@ def handle_calculate_IK(req):
 
         ### Your FK code here
         # Create symbols
-	#
+	    # Initialize service response
+        joint_trajectory_list = []
 	#
 	# Create Modified DH parameters
 	#
 	#
 	# Define Modified DH Transformation matrix
-	#
-	#
+	    def DH_transform(q, d, alpha, a):
+            #alpha: twist angle, a: link length
+            #d: link offset, q: joint angle
+            T = Matrix([[           cos(q),           -sin(q),           0,             a],
+                        [sin(q)*cos(alpha), cos(q)*cos(alpha), -sin(alpha), -sin(alpha)*d],
+                        [sin(q)*sin(alpha), cos(q)*sin(alpha),  cos(alpha),  cos(alpha)*d],
+                        [                0,                 0,           0,             1]])
+            return T
+	
 	# Create individual transformation matrices
-	#
-	#
+	    def rot_x(q):
+            #rotation matrix along x axis
+            R_x = Matrix([[      1,      0,      0],
+                          [      0, cos(q), -sin(q)],
+                          [      0, sin(q),  cos(q)]])
+            return R_x
+
+        def rot_y(q):
+            #rotation matrix along y axis
+            R_y = Matrix([[ cos(q),     0, sin(q)],
+                          [      0,     1,      0],
+                          [-sin(q),     0, cos(q)]])
+            return R_y
+
+        def rot_z(q):
+            #rotation matrix along z axis
+            R_z = Matrix([[cos(q), -sin(q), 0],
+                          [sin(q),  cos(q), 0],
+                          [     0,       0, 1]])
+            return R_z
+	
 	# Extract rotation matrices from the transformation matrices
 	#
 	#
         ###
-
-        # Initialize service response
-        joint_trajectory_list = []
         for x in xrange(0, len(req.poses)):
             # IK code starts here
             joint_trajectory_point = JointTrajectoryPoint()

@@ -3,6 +3,8 @@
 [//]: # (Image References)
 [start]: ./readme_images/start.jpg
 [dh]: ./readme_images/dh.png
+[missed]: ./readme_images/missed_cylinder.jpg
+[final]: ./readme_images/in_bin.jpg
 
 ![Start][start]
 
@@ -221,5 +223,28 @@ where `Rrpy = homogeneous RPY rotation between base link gripper link`
 
 		`joint_trajectory_point.positions = [theta1, theta2, theta3, theta4, theta5, theta6]`
 4. ##### Now we choose the correct solution among the set of possible solutions
+
+### Project Implementation
+
+#### 1. Fill in the `IK_server.py` file with properly commented python code for calculating Inverse Kinematics based on previously performed Kinematic Analysis. Your code must guide the robot to successfully complete 8/10 pick and place cycles. Briefly discuss the code you implemented and your results. 
+After having some help implementing IK, the script ran very slow due to its resource heavy calculations. So to optimize the performance I followed the recommended optimizations from lecture. I left the FK implementation and generic formulas outside the for loop since this doesn't need to be recomputed inside the for loop.
+
+Although the IK was still slow, the arm managed to work without any issues with the pick and place cycles. The only problem besides the arm being slow was that the gripper wouldn't grip the cylinder fully when I click 'continue', so when it performs the IK part, there would be no cylinder in the robot's gripper but it would perform the cycle as we can see in the image below:
+
+![missed_cylinder][missed]    
+
+
+I took care of this issue by adding this line of code:
+
+```
+	ros::Duration(2.0).sleep();
+```
+
+in the src/trajectory_sampler.cpp, as suggested in the Common Questions section of the project which made it possible to grasp more cylinders as we can see below, the arm managed to place 3 cylinders in a bin.
+
+![three_in_a_bin][final]    
+
+Some improvements I would do after implementing the IK script, are simplifying the math formulas. There may be ways to solve IK using less expensive operators that I may not aware of, but the math operations behind this project seems to be the main choke point since it performs very heavy computations. Another work around is having a better machine that can handle these kind of computations.
+
 
 

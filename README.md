@@ -94,6 +94,7 @@ We can now create our individual transforms by calling this method and using the
         T4_5  = homogeneous_transform(alpha4, a4, d5, q5).subs(s)
         T5_6  = homogeneous_transform(alpha5, a5, d6, q6).subs(s)
         T6_EE = homogeneous_transform(alpha6, a6, d7, q7).subs(s)
+      ```
 
 The overall homogeneous transform from base frame to end-effector frame is them:               
  

@@ -20,6 +20,14 @@ from sympy import *
 import numpy as np
 import time
 
+# Create symbols
+q1, q2, q3, q4, q5, q6, q7 = symbols('q1:8')
+d1, d2, d3, d4, d5, d6, d7 = symbols('d1:8')
+a0, a1, a2, a3, a4, a5, a6 = symbols('a0:7')
+alpha0, alpha1, alpha2, alpha3, alpha4, alpha5, alpha6 = symbols('alpha0:7')
+r, p, y = symbols("r p y") # end-effector orientation
+px_s, py_s, pz_s = symbols("px_s py_s pz_s") # end-effector position
+
 def rot_x(q):
     #rotation matrix along x axis
     R_x = Matrix([[      1,      0,      0],
@@ -57,13 +65,6 @@ def handle_calculate_IK(req):
         return -1
     else:
         ### Your FK code here
-        # Create symbols
-        q1, q2, q3, q4, q5, q6, q7 = symbols('q1:8')
-        d1, d2, d3, d4, d5, d6, d7 = symbols('d1:8')
-        a0, a1, a2, a3, a4, a5, a6 = symbols('a0:7')
-        alpha0, alpha1, alpha2, alpha3, alpha4, alpha5, alpha6 = symbols('alpha0:7')
-        r, p, y = symbols("r p y") # end-effector orientation
-        px_s, py_s, pz_s = symbols("px_s py_s pz_s") # end-effector position
         # Compensation matix from URDF to world frame
         R_corr = rot_z(pi) * rot_y(-pi/2)
 

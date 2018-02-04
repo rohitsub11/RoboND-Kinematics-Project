@@ -3,61 +3,6 @@
 [//]: # (Image References)
 [start]: ./readme_images/start.jpg
 [dh]: ./readme_images/dh.png
-[alpha]: ./readme_images/alpha.png
-[alpha_i-1]: ./readme_images/alpha_i-1.png
-[a]: ./readme_images/a_i-1.png
-[d]: ./readme_images/d_i.png
-[theta]: ./readme_images/theta_i.png
-[pi2]: ./readme_images/pi2.png
-[-pi2]: ./readme_images/-pi2.png
-[theta1]: ./readme_images/theta_1.png
-[theta2]: ./readme_images/theta_2.png
-[theta2-90]: ./readme_images/theta_2-90.png
-[theta3]: ./readme_images/theta_3.png
-[theta4]: ./readme_images/theta_4.png
-[theta5]: ./readme_images/theta_5.png
-[theta6]: ./readme_images/theta_6.png
-[transform-single]: ./readme_images/transform-single.png
-[transform-simple]: ./readme_images/transform-simple.png
-[transform-composition1]: ./readme_images/transform-composition1.png
-[transform-composition2]: ./readme_images/transform-composition2.png
-[A_r_P_A_0]: ./readme_images/A_r_P_A_0.png
-[A]: ./readme_images/A.png
-[P]: ./readme_images/P.png
-[A_0]: ./readme_images/A_0.png
-[R_small]: ./readme_images/r.png
-[r_11]: ./readme_images/r_11.png
-[A_B_R]: ./readme_images/A_B_R.png
-[rotation-single]: ./readme_images/rotation-single.png
-[transform-comb]: ./readme_images/transform-comb.png
-[diag-clean]: ./readme_images/diag-clean.png
-[diag-detailed]: ./readme_images/diag-detailed.png
-[O_0]: ./readme_images/O_0.png
-[O_1]: ./readme_images/O_1.png
-[O_2]: ./readme_images/O_2.png
-[O_2_1]: ./readme_images/O_2_1.png
-[O_EE]: ./readme_images/O_EE.png
-[Z_1]: ./readme_images/Z_1.png
-[theta_2-calc]: ./readme_images/theta_2-calc.png
-[theta_2-zoom]: ./readme_images/theta_2-zoom.png
-[delta]: ./readme_images/delta.png
-[delta-calc]: ./readme_images/delta-calc.png
-[WC]: ./readme_images/WC.png
-[WC^1]: ./readme_images/WC^1.png
-[theta_3-zoom]: ./readme_images/theta_3-zoom.png
-[theta_3-calc]: ./readme_images/theta_3-calc.png
-[epsilon]: ./readme_images/epsilon.png
-[epsilon-calc]: ./readme_images/epsilon-calc.png
-[T]: ./readme_images/T.png
-[R]: ./readme_images/R.png
-[R-calc]: ./readme_images/R-calc.png
-[R_0_6]: ./readme_images/R_0_6.png
-[R_3_6]: ./readme_images/R_3_6.png
-[R_rpy-calc]: ./readme_images/R_rpy-calc.png
-[R_3_6-calc-LHS-1]: ./readme_images/R_3_6-calc-LHS-1.png
-[R_3_6-calc-LHS-2]: ./readme_images/R_3_6-calc-LHS-2.png
-[y]: ./readme_images/y.png
-[P_small]: ./readme_images/p.png
 
 ![Start][start]
 
@@ -85,36 +30,133 @@ To calculate FK and IK calculation, we attach reference frames to each link of t
 To do FK and IK, we are using a method by Jacques Denavit and Richard Hartenberg which requires only four parameters for each reference frame.
 
 ![dh][dh]
+Definition of DH parameters
+- Twist angle (alpha) is the angle between `z_i-1` and `z_i` as measured about `x_i-1` in the right-hand sense
+- Link length (a) is the distance between `z_i-1` and `z_i` along `x_i-1` where `x_i-1` is perpendicular to both `z_i-1` and `zi`
+- Link offset (d) is the signed distance from `x_i-1` to `x_i` measure along `z_i`. Will be a variable for a prismatic joint.
+- Joint angle (theta) is the angle between `x_i-1` to `x_i` measured about `z_i` in the right-hand send. Will be a variable for a revolute joint.
+
+From URDF file:
+- J0 = (0, 0, 0)
+- J1 = (0, 0, 0.33)
+- J2 = (0.35, 0, 0.42)
+- J3 = (0, 0, 1.25)
+- J4 = (0.96, 0, -0.054)
+- J5 = (0.54, 0, 0)
+- J6 = (0.193, 0, 0)
+- JG = (0.11, 0, 0)
 
 Following are DH parameters used specifically in this project:
 
-Links | alpha(i-1) | a(i-1) | d(i-1) | theta(i)
+Links | theta(i) | d(i-1) | alpha(i-1) | a(i-1)
 --- | --- | --- | --- | ---
-0->1 | 0 | 0 | L1 | qi
-1->2 | - pi/2 | L2 | 0 | -pi/2 + q2
-2->3 | 0 | 0 | 0 | 0
-3->4 |  0 | 0 | 0 | 0
-4->5 | 0 | 0 | 0 | 0
-5->6 | 0 | 0 | 0 | 0
-6->EE | 0 | 0 | 0 | 0
+0->1 | 0 | 0.75 | 0 | 0
+1->2 | q2 - pi/2 | 0 | -pi/2 | 0.35
+2->3 | 0 | 0 | 0 | 1.25
+3->4 |  0 | 1.5 | -pi/2 | -0.054
+4->5 | 0 | 0 | pi/2 | 0
+5->6 | 0 | 0 | -pi/2 | 0
+6->EE | 0 | 0.303 | 0 | 0
 
-**Homogenous transforms** are then combined together. Parameters of each transformation are set from **DH parameters**.Each transformation matrix looks like this:
+- `a1` is x-axis distance beteen `z1` and `z2`. in URDF joint 1 and joint 2 are 0.35m apart
+- `d1` is distance between `x0` and `x1` along `z1`, which is 0.33 + 0.42 = 0.75m
 
-![^{i-1}_iT=\begin{bmatrix}cos(\theta_i) &  - sin(\theta_i) & 0 & a \\ sin(\theta_i)cos(\alpha_{i-1}) & cos(\theta_i)cos(\alpha_{i-1}) &  - sin(\alpha_{i-1}) &  - d  *  sin(\alpha_{i-1}) \\ sin(\theta_i)sin(\alpha_{i-1}) & cos(\theta_i)sin(\alpha_{i-1}) & cos(\alpha_{i-1}) & d  *  cos(\alpha_{i-1}) \\ 0 & 0 & 0 & 1 \end{bmatrix}][transform-single]
+The homogeneous transform for the DH coordinates system from joint `i-1` to `i` is:
 
-Simplified as ![^{0}_1T][transform-simple] which means *tranformation from reference frame A to reference frame B*.
+Let `T_i-1,i = `
 
-It is important to note (for later when we calculate ![q4][theta4] to ![q6][theta6] in this project) that this transformation matrix is consisted of rotational and translational matrices:
+               [[cos(theta_i), -sin(theta_i), 0, a_i-1], 
+               [sin(theta_i) * cos(alpha_i-1), cos(theta_i) * cos(alpha_i-1), -sin(alpha_i-1), -sin(alpha_i-1) * d_i-1], 
+               [sin(theta_i) * sin(alpha_i-1), cos(theta_i) * sin(alpha_i-1), cos(alpha_i-1), cos(alpha_i-1) * d_i-1], 
+               [0, 0, 0, 1]]
+               
+We fill in the `alpha`, `a`, and `d` values from above table and must later calculate `theta` values.
+The overall homogeneous transform from base frame to end-effector frame is them:               
+ 
+              
+`T_0EE = T_01 * T_12 * T_23 * T_34 * T_45 * T_56 * T_6EE`
 
-![transform-composition1][transform-composition1]
+*Let `r=rotation`, `p=pitch`, `y=yaw`, then the x, y, and z rotations in a 3D space are as follows:*
 
-![^{A}_BR][A_B_R] denotes the rotational matrix from frame A to frame B. In other words, then, ![R][R] block from [T][T] matrix above looks as follows:
+`rotX = [[1, 0, 0],
+        [0, cos(r), -sin(r)],
+        [0, sin(r), cos(r)]]`        
+`rotY = [[cos(p), 0, sin(p)],
+        [0, 1, 0],
+        [-sin(p), 0, cos(p)]]`        
+`rotZ = [[cos(y), -sin(y), 0],
+        [sin(y), cos(y), 0],
+        [0, 0, 1]]`
+        
+`Rot_EE = rotZ * rotY * rotX`
 
-![^{i-1}_iR=\begin{bmatrix}cos(\theta_i) &  - sin(\theta_i) & 0 \\ sin(\theta_i)cos(\alpha_{i-1}) & cos(\theta_i)cos(\alpha_{i-1}) &  - sin(\alpha_{i-1}) \\ sin(\theta_i)sin(\alpha_{i-1}) & cos(\theta_i)sin(\alpha_{i-1}) & cos(\alpha_{i-1})  \end{bmatrix}][rotation-single]
+To compare results with Rviz, we must rotate the R0_G frame. That correction is given by:
 
-The links go from 0 to 6 and then followed by EE, that is why in the DH parameters above we have 7 rows. To combine transformations, calculate the dot products of all single transformations:
+`Rot_Error = rotZ(y=pi) * rotY(p=-pi/2)`
 
-![^{0}_{EE}T=^{0}_{1}T * ^{1}_{2}T * ^{2}_{3}T * ^{3}_{4}T * ^{4}_{5}T * ^{5}_{6}T * ^{6}_{EE}T][transform-comb]
+`Rot_EE = Rot_EE * Rot_Error = f(r, p, y)`
 
+### Inverse Kinematics
+
+We have a spherical wrists robot with joint 5 being the *wrist center*.  Thus
+we can kinematically decouple the IK problem into *Inverse Position* and *Inverse Orientation*
+
+### Inverse Position
+
+Wrist center position determined by first three joints. Use complete transform matrix based on 
+end-effector pose.
+
+`WC = [[px], [py], [pz]] - 0.303 * Rot_EE[:, 2]`
+
+`theta1 = arctan2(WC_y, WC_x)`
+
+`side_a = 1.501`
+
+`side_b = sqrt((sqrt(WC[0]^2 + WC[1]^2) - 0.35)^2 + (WC[2] - 0.75)^2)`
+
+`side_c = 1.25`
+
+`angle_a = acos((side_b^2 + side_c^2 - side_a^2) / (2 * side_b * side_c))`
+                
+`angle_b = acos((side_a^2 + side_c^2 - side_b^2) / (2 * side_a * side_c))`
+
+`angle_c = acos((side_a^2 + side_b^2 - side_c^2) / (2 * side_a * side_b))`
+
+`theta2 = pi/2 - angle_a - atan2(WC[2] - 0.75, sqrt(WC[0]^2 + WC[1]^2) - 0.35)`
+
+`theta3 = pi/2 - (angle_b + 0.036)` (constant accounts for sag in link4 of -0.054m)
+
+### Inverse Orientation
+
+Resultant transform give by:
+
+`R0_6 = R0_1 * R1_2 * R2_3 * R3_4 * R4_5 * R5_6`
+
+Overall roll, pitch, yaw rotation from base to gripper must equal product of 
+individual rotations between respective links, the following holds:
+
+`R0_6 = Rrpy`
+
+where `Rrpy = homogeneous RPY rotation between base link gripper link`
+
+`r03 = t01[0:3, 0:3] * t12[0:3, 0:3] * t23[0:3, 0:3]`
+
+`r03 = r03(q1=theta1, q2=theta2, q3=theta3)`
+
+Multiplying both sides of the above equation by `LU_inverse(R0_3)`
+Calculate inverse using Sympy's `inv()` passing "LU" ensuring "LU decomposition."
+`r36 = LU_inverse(r03) * Rot_EE`
+
+Resultant matrix on the RHS does not have any variables after substituting joint angle values.
+
+*Compute Euler angles from the rotation matrix from 3-6*
+
+`theta4 = atan2(r36[2, 2], -r36[0, 2])`
+
+`theta5 = atan2(sqrt(r36[0, 2]^2 + r36[2, 2]^2), r36[1, 2])`
+
+`theta6 = atan2(-r36[1, 1], r36[1, 0])`
+
+`joint_trajectory_point.positions = [theta1, theta2, theta3, theta4, theta5, theta6]`
 
 

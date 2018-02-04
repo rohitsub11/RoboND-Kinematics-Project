@@ -138,7 +138,9 @@ def handle_calculate_IK(req):
                          [py],
                          [pz]])
 
-            #wrist center calculation
+            # calculate wrist center position from end-effector position!
+            # formula: 0_r_WC/0 = 0_r_EE/0 - d * 0-6R * [[0],[0][1]] -
+            # [[px], [py], [pz]] - d * 0-6R [[0][0][1]]
             WC = EE - (0.303) * Rot_EE[:,2]
     	    #
     	    # Calculate joint angles using Geometric IK method
@@ -154,6 +156,7 @@ def handle_calculate_IK(req):
             angle_c = acos((side_a*side_a + side_b*side_b - side_c*side_c) / (2 * side_a *side_b))
 
             theta2 = pi/2-angle_a-atan2(WC[2] - 0.75, sqrt(WC[0] * WC[0] + WC[1] * WC[1]) - 0.35)
+            # constant account for sag in link4 of -0.054m
             theta3 = pi/2-(angle_b+0.036)
 
             R0_3 = T0_1[0:3,0:3] * T1_2[0:3,0:3] * T2_3[0:3,0:3]
